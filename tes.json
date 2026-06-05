@@ -1,81 +1,305 @@
 {
-    "process": [
-        {
-            "type": "startEvent",
-            "id": "start"
-        },
-        {
-            "type": "userTask",
-            "id": "task1",
-            "label": "Send email to professor"
-        },
-        {
-            "type": "task",
-            "id": "task2",
-            "label": "Receive the email"
-        },
-        {
-            "type": "exclusiveGateway",
-            "id": "exclusive1",
-            "label": "Professor agrees?",
-            "has_join": true,
-            "branches": [
-                {
-                    "condition": "If the professor agrees",
-                    "path": [
-                        {
-                            "type": "task",
-                            "id": "task3",
-                            "label": "Reply to the student"
-                        }
-                    ]
-                },
-                {
-                    "condition": "If the professor does not agree",
-                    "path": []
-                }
-            ]
-        },
-        {
-            "type": "endEvent",
-            "id": "end1"
-        }
-    ]
-}
-{
-  "process": [
-    {
-      "type": "startEvent",
-      "id": "start"
-    },
-    {
-      "type": "manualTask",
-      "id": "task1",
-      "label": "Fill out order form"
-    },
-    {
-      "type": "sendTask",
-      "id": "task2",
-      "label": "Send confirmation email"
-    },
-    {
-      "type": "receiveTask",
-      "id": "task3",
-      "label": "Receive payment confirmation"
-    },
-    {
-      "type": "scriptTask",
-      "id": "task4",
-      "label": "Validate payment data"
-    },
-    {
-      "type": "businessRuleTask",
-      "id": "task5",
-      "label": "Determine discount eligibility"
-    },
-    {
-      "type": "endEvent",
-      "id": "end"
-    }
+  "_schemaVersion": "2.0",
+  "_comment": "BPMN JSON - all node types use standard BPMN names. eventDefinition field added to events. Intermediate message events are explicit nodes. sendTask replaced with messageIntermediateThrowEvent.",
+
+  "pools": [
+    { "id": "pool_student",    "label": "Student",    "type": "expandedPool" },
+    { "id": "pool_university", "label": "University", "type": "expandedPool" }
+  ],
+
+  "lanes": [
+    { "id": "lane_student",       "label": "Student",                    "pool": "pool_student" },
+    { "id": "lane_admissions",    "label": "Admissions Office",          "pool": "pool_university" },
+    { "id": "lane_finance",       "label": "Finance Department",         "pool": "pool_university" },
+    { "id": "lane_it",            "label": "IT Department",              "pool": "pool_university" },
+    { "id": "lane_international", "label": "International Student Office","pool": "pool_university" },
+    { "id": "lane_registrar",     "label": "Registrar's Office",         "pool": "pool_university" }
+  ],
+
+  "nodes": [
+
+    { "type": "startEvent", "id": "start", "label": "Application Started", "lane": "lane_student" },
+
+    { "type": "userTask",   "id": "submit_application", "label": "Submit Application Online", "lane": "lane_student" },
+
+    { "type": "messageIntermediateThrowEvent", "id": "throw_application",
+      "label": "", "eventDefinition": "messageEventDefinition", "lane": "lane_student" },
+
+    { "type": "messageIntermediateCatchEvent", "id": "catch_application",
+      "label": "", "eventDefinition": "messageEventDefinition", "lane": "lane_admissions" },
+
+    { "type": "userTask",   "id": "review_application", "label": "Review Application and Documents", "lane": "lane_admissions" },
+
+    { "type": "exclusiveGateway", "id": "docs_complete_gw", "label": "Documents Complete?", "lane": "lane_admissions" },
+
+    { "type": "userTask",   "id": "notify_missing_docs", "label": "Notify Applicant of Missing Documents", "lane": "lane_admissions" },
+
+    { "type": "messageIntermediateThrowEvent", "id": "throw_missing_docs_notice",
+      "label": "", "eventDefinition": "messageEventDefinition", "lane": "lane_admissions" },
+
+    { "type": "messageIntermediateCatchEvent", "id": "catch_missing_docs_notice",
+      "label": "", "eventDefinition": "messageEventDefinition", "lane": "lane_student" },
+
+    { "type": "userTask",   "id": "provide_missing_docs", "label": "Provide Missing Documents", "lane": "lane_student" },
+
+    { "type": "messageIntermediateThrowEvent", "id": "throw_missing_docs_return",
+      "label": "", "eventDefinition": "messageEventDefinition", "lane": "lane_student" },
+
+    { "type": "messageIntermediateCatchEvent", "id": "catch_missing_docs_return",
+      "label": "", "eventDefinition": "messageEventDefinition", "lane": "lane_admissions" },
+
+    { "type": "exclusiveGateway", "id": "docs_merge_gw", "label": "", "lane": "lane_admissions" },
+
+    { "type": "parallelGateway",  "id": "evaluation_split", "label": "", "lane": "lane_admissions" },
+
+    { "type": "userTask",   "id": "evaluate_application", "label": "Evaluate Application by Admissions Committee", "lane": "lane_admissions" },
+
+    { "type": "serviceTask","id": "process_fees", "label": "Process Fees or Waivers", "lane": "lane_finance" },
+
+    { "type": "parallelGateway",  "id": "evaluation_join", "label": "", "lane": "lane_admissions" },
+
+    { "type": "exclusiveGateway", "id": "accepted_gw", "label": "Application Accepted?", "lane": "lane_admissions" },
+
+    { "type": "userTask",   "id": "send_acceptance", "label": "Send Acceptance Letter", "lane": "lane_admissions" },
+
+    { "type": "userTask",   "id": "send_rejection",  "label": "Send Rejection Letter",  "lane": "lane_admissions" },
+
+    { "type": "messageIntermediateThrowEvent", "id": "throw_acceptance",
+      "label": "", "eventDefinition": "messageEventDefinition", "lane": "lane_admissions" },
+
+    { "type": "messageIntermediateCatchEvent", "id": "catch_acceptance",
+      "label": "", "eventDefinition": "messageEventDefinition", "lane": "lane_student" },
+
+    { "type": "userTask",   "id": "confirm_enrollment", "label": "Confirm Enrollment", "lane": "lane_student" },
+
+    { "type": "messageIntermediateThrowEvent", "id": "throw_enrollment_confirm",
+      "label": "", "eventDefinition": "messageEventDefinition", "lane": "lane_student" },
+
+    { "type": "messageIntermediateCatchEvent", "id": "catch_enrollment_confirm",
+      "label": "", "eventDefinition": "messageEventDefinition", "lane": "lane_admissions" },
+
+    { "type": "exclusiveGateway", "id": "confirmation_gw", "label": "Confirmed Before Deadline?", "lane": "lane_admissions" },
+
+    { "type": "userTask",   "id": "cancel_application", "label": "Cancel Application", "lane": "lane_admissions" },
+
+    { "type": "messageIntermediateCatchEvent", "id": "catch_enrollment_it",
+      "label": "", "eventDefinition": "messageEventDefinition", "lane": "lane_it" },
+
+    { "type": "parallelGateway",  "id": "onboarding_split", "label": "", "lane": "lane_it" },
+
+    { "type": "serviceTask","id": "setup_accounts",   "label": "Set Up IT Accounts",        "lane": "lane_it" },
+    { "type": "userTask",   "id": "send_orientation", "label": "Send Orientation Materials","lane": "lane_admissions" },
+
+    { "type": "parallelGateway",  "id": "onboarding_join", "label": "", "lane": "lane_it" },
+
+    { "type": "exclusiveGateway", "id": "international_gw", "label": "International Student?", "lane": "lane_international" },
+
+    { "type": "userTask",   "id": "assist_visa", "label": "Assist with Visa Processing", "lane": "lane_international" },
+
+    { "type": "exclusiveGateway", "id": "visa_merge_gw", "label": "", "lane": "lane_international" },
+
+    { "type": "messageIntermediateThrowEvent", "id": "throw_onboarding_complete",
+      "label": "", "eventDefinition": "messageEventDefinition", "lane": "lane_international" },
+
+    { "type": "messageIntermediateCatchEvent", "id": "catch_onboarding_complete",
+      "label": "", "eventDefinition": "messageEventDefinition", "lane": "lane_student" },
+
+    { "type": "parallelGateway",  "id": "study_plan_split", "label": "", "lane": "lane_student" },
+
+    { "type": "userTask",   "id": "obtain_student_id", "label": "Obtain Student ID Card",   "lane": "lane_student" },
+    { "type": "userTask",   "id": "meet_advisor",       "label": "Meet with Academic Advisor","lane": "lane_student" },
+    { "type": "userTask",   "id": "select_courses",     "label": "Select Courses",            "lane": "lane_student" },
+    { "type": "userTask",   "id": "resolve_conflicts",  "label": "Resolve Schedule Conflicts","lane": "lane_student" },
+
+    { "type": "parallelGateway",  "id": "study_plan_join", "label": "", "lane": "lane_student" },
+
+    { "type": "exclusiveGateway", "id": "attend_merge_gw", "label": "", "lane": "lane_student" },
+
+    { "type": "userTask",   "id": "attend_classes", "label": "Begin Attending Classes", "lane": "lane_student" },
+
+    { "type": "exclusiveGateway", "id": "add_drop_gw", "label": "Add/Drop Period?", "lane": "lane_student" },
+
+    { "type": "userTask",   "id": "add_drop_courses", "label": "Add/Drop Courses", "lane": "lane_student" },
+
+    { "type": "exclusiveGateway", "id": "end_of_semester_merge_gw", "label": "", "lane": "lane_student" },
+
+    { "type": "messageIntermediateThrowEvent", "id": "throw_end_of_semester",
+      "label": "", "eventDefinition": "messageEventDefinition", "lane": "lane_student" },
+
+    { "type": "messageIntermediateCatchEvent", "id": "catch_end_of_semester",
+      "label": "", "eventDefinition": "messageEventDefinition", "lane": "lane_registrar" },
+
+    { "type": "userTask",   "id": "post_grades", "label": "Post Grades", "lane": "lane_registrar" },
+
+    { "type": "messageIntermediateThrowEvent", "id": "throw_grades_posted",
+      "label": "", "eventDefinition": "messageEventDefinition", "lane": "lane_registrar" },
+
+    { "type": "messageIntermediateCatchEvent", "id": "catch_grades_posted",
+      "label": "", "eventDefinition": "messageEventDefinition", "lane": "lane_student" },
+
+    { "type": "userTask",   "id": "review_grades", "label": "Review Grades Online", "lane": "lane_student" },
+
+    { "type": "exclusiveGateway", "id": "appeal_gw", "label": "Appeal Needed?", "lane": "lane_student" },
+
+    { "type": "userTask",   "id": "submit_appeal",        "label": "Submit Appeal Form",          "lane": "lane_student" },
+    { "type": "userTask",   "id": "appeal_meeting",       "label": "Meet with Appeals Committee", "lane": "lane_student" },
+    { "type": "userTask",   "id": "await_appeal_decision","label": "Await Appeal Decision",       "lane": "lane_student" },
+
+    { "type": "exclusiveGateway", "id": "appeal_merge_gw",     "label": "", "lane": "lane_student" },
+    { "type": "exclusiveGateway", "id": "semester_decision_gw","label": "Graduate, Withdraw, or Continue?", "lane": "lane_student" },
+    { "type": "exclusiveGateway", "id": "grad_withdraw_split_gw","label": "", "lane": "lane_student" },
+
+    { "type": "userTask",   "id": "graduate", "label": "Graduate", "lane": "lane_student" },
+    { "type": "userTask",   "id": "withdraw",  "label": "Withdraw",  "lane": "lane_student" },
+
+    { "type": "exclusiveGateway", "id": "grad_withdraw_merge_gw", "label": "", "lane": "lane_student" },
+
+    { "type": "messageIntermediateThrowEvent", "id": "throw_completion",
+      "label": "", "eventDefinition": "messageEventDefinition", "lane": "lane_student" },
+
+    { "type": "messageIntermediateCatchEvent", "id": "catch_completion",
+      "label": "", "eventDefinition": "messageEventDefinition", "lane": "lane_admissions" },
+
+    { "type": "exclusiveGateway", "id": "end_merge_gw", "label": "", "lane": "lane_admissions" },
+
+    { "type": "endEvent", "id": "end", "label": "Process Ended", "lane": "lane_admissions" }
+  ],
+
+  "sequenceFlows": [
+    { "id": "sf1",  "source": "start",                    "target": "submit_application" },
+    { "id": "sf2",  "source": "submit_application",       "target": "throw_application" },
+    { "id": "sf3",  "source": "catch_application",        "target": "review_application" },
+    { "id": "sf4",  "source": "review_application",       "target": "docs_complete_gw" },
+    { "id": "sf5",  "source": "docs_complete_gw",         "target": "notify_missing_docs",      "condition": "Missing" },
+    { "id": "sf6",  "source": "notify_missing_docs",      "target": "throw_missing_docs_notice" },
+    { "id": "sf7",  "source": "catch_missing_docs_notice","target": "provide_missing_docs" },
+    { "id": "sf8",  "source": "provide_missing_docs",     "target": "throw_missing_docs_return" },
+    { "id": "sf9",  "source": "catch_missing_docs_return","target": "docs_merge_gw" },
+    { "id": "sf10", "source": "docs_complete_gw",         "target": "docs_merge_gw",            "condition": "Complete" },
+    { "id": "sf11", "source": "docs_merge_gw",            "target": "evaluation_split" },
+    { "id": "sf12", "source": "evaluation_split",         "target": "evaluate_application" },
+    { "id": "sf13", "source": "evaluation_split",         "target": "process_fees" },
+    { "id": "sf14", "source": "evaluate_application",     "target": "evaluation_join" },
+    { "id": "sf15", "source": "process_fees",             "target": "evaluation_join" },
+    { "id": "sf16", "source": "evaluation_join",          "target": "accepted_gw" },
+    { "id": "sf17", "source": "accepted_gw",              "target": "send_acceptance",          "condition": "Accepted" },
+    { "id": "sf18", "source": "accepted_gw",              "target": "send_rejection",           "condition": "Rejected" },
+    { "id": "sf19", "source": "send_acceptance",          "target": "throw_acceptance" },
+    { "id": "sf20", "source": "send_rejection",           "target": "end_merge_gw" },
+    { "id": "sf21", "source": "catch_acceptance",         "target": "confirm_enrollment" },
+    { "id": "sf22", "source": "confirm_enrollment",       "target": "throw_enrollment_confirm" },
+    { "id": "sf23", "source": "catch_enrollment_confirm", "target": "confirmation_gw" },
+    { "id": "sf24", "source": "confirmation_gw",          "target": "cancel_application",       "condition": "No Confirmation" },
+    { "id": "sf25", "source": "cancel_application",       "target": "end_merge_gw" },
+    { "id": "sf26", "source": "confirmation_gw",          "target": "catch_enrollment_it",      "condition": "Confirmed" },
+    { "id": "sf27", "source": "catch_enrollment_it",      "target": "onboarding_split" },
+    { "id": "sf28", "source": "onboarding_split",         "target": "setup_accounts" },
+    { "id": "sf29", "source": "onboarding_split",         "target": "send_orientation" },
+    { "id": "sf30", "source": "setup_accounts",           "target": "onboarding_join" },
+    { "id": "sf31", "source": "send_orientation",         "target": "onboarding_join" },
+    { "id": "sf32", "source": "onboarding_join",          "target": "international_gw" },
+    { "id": "sf33", "source": "international_gw",         "target": "assist_visa",              "condition": "International" },
+    { "id": "sf34", "source": "international_gw",         "target": "visa_merge_gw",            "condition": "Domestic" },
+    { "id": "sf35", "source": "assist_visa",              "target": "visa_merge_gw" },
+    { "id": "sf36", "source": "visa_merge_gw",            "target": "throw_onboarding_complete" },
+    { "id": "sf37", "source": "catch_onboarding_complete","target": "study_plan_split" },
+    { "id": "sf38", "source": "study_plan_split",         "target": "obtain_student_id" },
+    { "id": "sf39", "source": "study_plan_split",         "target": "meet_advisor" },
+    { "id": "sf40", "source": "meet_advisor",             "target": "select_courses" },
+    { "id": "sf41", "source": "select_courses",           "target": "resolve_conflicts" },
+    { "id": "sf42", "source": "resolve_conflicts",        "target": "study_plan_join" },
+    { "id": "sf43", "source": "obtain_student_id",        "target": "study_plan_join" },
+    { "id": "sf44", "source": "study_plan_join",          "target": "attend_merge_gw" },
+    { "id": "sf45", "source": "attend_merge_gw",          "target": "attend_classes" },
+    { "id": "sf46", "source": "attend_classes",           "target": "add_drop_gw" },
+    { "id": "sf47", "source": "add_drop_gw",              "target": "add_drop_courses",         "condition": "Add/Drop Period" },
+    { "id": "sf48", "source": "add_drop_courses",         "target": "end_of_semester_merge_gw" },
+    { "id": "sf49", "source": "add_drop_gw",              "target": "end_of_semester_merge_gw", "condition": "End of Semester" },
+    { "id": "sf50", "source": "end_of_semester_merge_gw", "target": "throw_end_of_semester" },
+    { "id": "sf51", "source": "catch_end_of_semester",    "target": "post_grades" },
+    { "id": "sf52", "source": "post_grades",              "target": "throw_grades_posted" },
+    { "id": "sf53", "source": "catch_grades_posted",      "target": "review_grades" },
+    { "id": "sf54", "source": "review_grades",            "target": "appeal_gw" },
+    { "id": "sf55", "source": "appeal_gw",                "target": "submit_appeal",            "condition": "Yes" },
+    { "id": "sf56", "source": "submit_appeal",            "target": "appeal_meeting" },
+    { "id": "sf57", "source": "appeal_meeting",           "target": "await_appeal_decision" },
+    { "id": "sf58", "source": "await_appeal_decision",    "target": "appeal_merge_gw" },
+    { "id": "sf59", "source": "appeal_gw",                "target": "appeal_merge_gw",          "condition": "No" },
+    { "id": "sf60", "source": "appeal_merge_gw",          "target": "semester_decision_gw" },
+    { "id": "sf61", "source": "semester_decision_gw",     "target": "attend_merge_gw",          "condition": "Continue Next Semester" },
+    { "id": "sf62", "source": "semester_decision_gw",     "target": "grad_withdraw_split_gw",   "condition": "Graduate or Withdraw" },
+    { "id": "sf63", "source": "grad_withdraw_split_gw",   "target": "graduate",                 "condition": "Graduate" },
+    { "id": "sf64", "source": "grad_withdraw_split_gw",   "target": "withdraw",                 "condition": "Withdraw" },
+    { "id": "sf65", "source": "graduate",                 "target": "grad_withdraw_merge_gw" },
+    { "id": "sf66", "source": "withdraw",                 "target": "grad_withdraw_merge_gw" },
+    { "id": "sf67", "source": "grad_withdraw_merge_gw",   "target": "throw_completion" },
+    { "id": "sf68", "source": "catch_completion",         "target": "end_merge_gw" },
+    { "id": "sf69", "source": "end_merge_gw",             "target": "end" }
+  ],
+
+  "messageFlows": [
+    { "id": "mf1", "source": "throw_application",           "target": "catch_application",
+      "label": "Application Package" },
+    { "id": "mf2", "source": "throw_missing_docs_notice",   "target": "catch_missing_docs_notice",
+      "label": "Missing Documents Notice" },
+    { "id": "mf3", "source": "throw_missing_docs_return",   "target": "catch_missing_docs_return",
+      "label": "Supporting Documents" },
+    { "id": "mf4", "source": "throw_acceptance",            "target": "catch_acceptance",
+      "label": "Acceptance Letter" },
+    { "id": "mf5", "source": "throw_enrollment_confirm",    "target": "catch_enrollment_confirm",
+      "label": "Enrollment Confirmation (to Admissions)" },
+    { "id": "mf6", "source": "throw_enrollment_confirm",    "target": "catch_enrollment_it",
+      "label": "Enrollment Confirmation (to IT)" },
+    { "id": "mf7", "source": "throw_end_of_semester",       "target": "catch_end_of_semester",
+      "label": "End of Semester Notification" },
+    { "id": "mf8", "source": "throw_grades_posted",         "target": "catch_grades_posted",
+      "label": "Grades Posted Notification" },
+    { "id": "mf9", "source": "throw_onboarding_complete",   "target": "catch_onboarding_complete",
+      "label": "Onboarding Complete" },
+    { "id": "mf10","source": "throw_completion",            "target": "catch_completion",
+      "label": "Graduate/Withdraw Notification" }
+  ],
+
+  "dataObjects": [
+    { "id": "application",              "label": "Application",               "type": "dataObjectReference" },
+    { "id": "supporting_documents",     "label": "Supporting Documents",      "type": "dataObjectReference" },
+    { "id": "application_fee_record",   "label": "Application Fee Record",    "type": "dataObjectReference" },
+    { "id": "acceptance_letter",        "label": "Acceptance Letter",         "type": "dataObjectReference" },
+    { "id": "rejection_letter",         "label": "Rejection Letter",          "type": "dataObjectReference" },
+    { "id": "enrollment_confirmation",  "label": "Enrollment Confirmation",   "type": "dataObjectReference" },
+    { "id": "orientation_materials",    "label": "Orientation Materials",     "type": "dataObjectReference" },
+    { "id": "visa_documents",           "label": "Visa Documents",            "type": "dataObjectReference" },
+    { "id": "student_account_info",     "label": "Student Account Information","type": "dataObjectReference" },
+    { "id": "study_plan",               "label": "Study Plan",                "type": "dataObjectReference" },
+    { "id": "course_schedule",          "label": "Course Schedule",           "type": "dataObjectReference" },
+    { "id": "grades",                   "label": "Grades",                    "type": "dataObjectReference" },
+    { "id": "appeal_form",              "label": "Appeal Form",               "type": "dataObjectReference" },
+    { "id": "appeal_decision",          "label": "Appeal Decision",           "type": "dataObjectReference" }
+  ],
+
+  "dataStores": [
+    { "id": "enrollment_db",      "label": "Enrollment Database",    "type": "dataStoreReference" },
+    { "id": "student_records_db", "label": "Student Records Database","type": "dataStoreReference" },
+    { "id": "grade_repository",   "label": "Grade Repository",       "type": "dataStoreReference" }
+  ],
+
+  "dataAssociations": [
+    { "id": "da1",  "type": "input",  "source": "application",            "target": "review_application" },
+    { "id": "da2",  "type": "input",  "source": "supporting_documents",   "target": "review_application" },
+    { "id": "da3",  "type": "input",  "source": "application",            "target": "evaluate_application" },
+    { "id": "da4",  "type": "input",  "source": "application_fee_record", "target": "process_fees" },
+    { "id": "da5",  "type": "output", "source": "send_acceptance",        "target": "acceptance_letter" },
+    { "id": "da6",  "type": "output", "source": "send_rejection",         "target": "rejection_letter" },
+    { "id": "da7",  "type": "output", "source": "confirm_enrollment",     "target": "enrollment_confirmation" },
+    { "id": "da8",  "type": "output", "source": "setup_accounts",         "target": "student_account_info" },
+    { "id": "da9",  "type": "output", "source": "select_courses",         "target": "course_schedule" },
+    { "id": "da10", "type": "output", "source": "resolve_conflicts",      "target": "study_plan" },
+    { "id": "da11", "type": "output", "source": "post_grades",            "target": "grades" },
+    { "id": "da12", "type": "input",  "source": "grades",                 "target": "review_grades" },
+    { "id": "da13", "type": "output", "source": "submit_appeal",          "target": "appeal_form" },
+    { "id": "da14", "type": "output", "source": "await_appeal_decision",  "target": "appeal_decision" },
+    { "id": "da15", "type": "store",  "source": "application",            "target": "enrollment_db" },
+    { "id": "da16", "type": "store",  "source": "study_plan",             "target": "student_records_db" },
+    { "id": "da17", "type": "store",  "source": "grades",                 "target": "grade_repository" }
   ]
 }

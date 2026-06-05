@@ -1,0 +1,585 @@
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL"
+    xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI"
+    xmlns:dc="http://www.omg.org/spec/DD/20100524/DC"
+    xmlns:di="http://www.omg.org/spec/DD/20100524/DI" id="definitions_1">
+    <bpmn:process id="Process_1" isExecutable="false">
+        <bpmn:startEvent id="start" name="Application Started">
+            <bpmn:outgoing>sf1</bpmn:outgoing>
+        </bpmn:startEvent>
+        <bpmn:userTask id="submit_application" name="Submit Application Online">
+            <bpmn:incoming>sf1</bpmn:incoming>
+            <bpmn:outgoing>sf2</bpmn:outgoing>
+        </bpmn:userTask>
+        <bpmn:messageIntermediateThrowEvent id="throw_application">
+            <bpmn:incoming>sf2</bpmn:incoming>
+            <bpmn:messageEventDefinition id="messageEventDefinition_throw_application" />
+        </bpmn:messageIntermediateThrowEvent>
+        <bpmn:messageIntermediateCatchEvent id="catch_application">
+            <bpmn:outgoing>sf3</bpmn:outgoing>
+            <bpmn:messageEventDefinition id="messageEventDefinition_catch_application" />
+        </bpmn:messageIntermediateCatchEvent>
+        <bpmn:userTask id="review_application" name="Review Application and Documents">
+            <bpmn:incoming>sf3</bpmn:incoming>
+            <bpmn:outgoing>sf4</bpmn:outgoing>
+        </bpmn:userTask>
+        <bpmn:exclusiveGateway id="docs_complete_gw" name="Documents Complete?">
+            <bpmn:incoming>sf4</bpmn:incoming>
+            <bpmn:outgoing>sf5</bpmn:outgoing>
+            <bpmn:outgoing>sf10</bpmn:outgoing>
+        </bpmn:exclusiveGateway>
+        <bpmn:userTask id="notify_missing_docs" name="Notify Applicant of Missing Documents">
+            <bpmn:incoming>sf5</bpmn:incoming>
+            <bpmn:outgoing>sf6</bpmn:outgoing>
+        </bpmn:userTask>
+        <bpmn:messageIntermediateThrowEvent id="throw_missing_docs_notice">
+            <bpmn:incoming>sf6</bpmn:incoming>
+            <bpmn:messageEventDefinition id="messageEventDefinition_throw_missing_docs_notice" />
+        </bpmn:messageIntermediateThrowEvent>
+        <bpmn:messageIntermediateCatchEvent id="catch_missing_docs_notice">
+            <bpmn:outgoing>sf7</bpmn:outgoing>
+            <bpmn:messageEventDefinition id="messageEventDefinition_catch_missing_docs_notice" />
+        </bpmn:messageIntermediateCatchEvent>
+        <bpmn:userTask id="provide_missing_docs" name="Provide Missing Documents">
+            <bpmn:incoming>sf7</bpmn:incoming>
+            <bpmn:outgoing>sf8</bpmn:outgoing>
+        </bpmn:userTask>
+        <bpmn:messageIntermediateThrowEvent id="throw_missing_docs_return">
+            <bpmn:incoming>sf8</bpmn:incoming>
+            <bpmn:messageEventDefinition id="messageEventDefinition_throw_missing_docs_return" />
+        </bpmn:messageIntermediateThrowEvent>
+        <bpmn:messageIntermediateCatchEvent id="catch_missing_docs_return">
+            <bpmn:outgoing>sf9</bpmn:outgoing>
+            <bpmn:messageEventDefinition id="messageEventDefinition_catch_missing_docs_return" />
+        </bpmn:messageIntermediateCatchEvent>
+        <bpmn:exclusiveGateway id="docs_merge_gw">
+            <bpmn:incoming>sf9</bpmn:incoming>
+            <bpmn:incoming>sf10</bpmn:incoming>
+            <bpmn:outgoing>sf11</bpmn:outgoing>
+        </bpmn:exclusiveGateway>
+        <bpmn:parallelGateway id="evaluation_split">
+            <bpmn:incoming>sf11</bpmn:incoming>
+            <bpmn:outgoing>sf12</bpmn:outgoing>
+            <bpmn:outgoing>sf13</bpmn:outgoing>
+        </bpmn:parallelGateway>
+        <bpmn:userTask id="evaluate_application" name="Evaluate Application by Admissions Committee">
+            <bpmn:incoming>sf12</bpmn:incoming>
+            <bpmn:outgoing>sf14</bpmn:outgoing>
+        </bpmn:userTask>
+        <bpmn:serviceTask id="process_fees" name="Process Fees or Waivers">
+            <bpmn:incoming>sf13</bpmn:incoming>
+            <bpmn:outgoing>sf15</bpmn:outgoing>
+        </bpmn:serviceTask>
+        <bpmn:parallelGateway id="evaluation_join">
+            <bpmn:incoming>sf14</bpmn:incoming>
+            <bpmn:incoming>sf15</bpmn:incoming>
+            <bpmn:outgoing>sf16</bpmn:outgoing>
+        </bpmn:parallelGateway>
+        <bpmn:exclusiveGateway id="accepted_gw" name="Application Accepted?">
+            <bpmn:incoming>sf16</bpmn:incoming>
+            <bpmn:outgoing>sf17</bpmn:outgoing>
+            <bpmn:outgoing>sf18</bpmn:outgoing>
+        </bpmn:exclusiveGateway>
+        <bpmn:userTask id="send_acceptance" name="Send Acceptance Letter">
+            <bpmn:incoming>sf17</bpmn:incoming>
+            <bpmn:outgoing>sf19</bpmn:outgoing>
+        </bpmn:userTask>
+        <bpmn:userTask id="send_rejection" name="Send Rejection Letter">
+            <bpmn:incoming>sf18</bpmn:incoming>
+            <bpmn:outgoing>sf20</bpmn:outgoing>
+        </bpmn:userTask>
+        <bpmn:messageIntermediateThrowEvent id="throw_acceptance">
+            <bpmn:incoming>sf19</bpmn:incoming>
+            <bpmn:messageEventDefinition id="messageEventDefinition_throw_acceptance" />
+        </bpmn:messageIntermediateThrowEvent>
+        <bpmn:messageIntermediateCatchEvent id="catch_acceptance">
+            <bpmn:outgoing>sf21</bpmn:outgoing>
+            <bpmn:messageEventDefinition id="messageEventDefinition_catch_acceptance" />
+        </bpmn:messageIntermediateCatchEvent>
+        <bpmn:userTask id="confirm_enrollment" name="Confirm Enrollment">
+            <bpmn:incoming>sf21</bpmn:incoming>
+            <bpmn:outgoing>sf22</bpmn:outgoing>
+        </bpmn:userTask>
+        <bpmn:messageIntermediateThrowEvent id="throw_enrollment_confirm">
+            <bpmn:incoming>sf22</bpmn:incoming>
+            <bpmn:messageEventDefinition id="messageEventDefinition_throw_enrollment_confirm" />
+        </bpmn:messageIntermediateThrowEvent>
+        <bpmn:messageIntermediateCatchEvent id="catch_enrollment_confirm">
+            <bpmn:outgoing>sf23</bpmn:outgoing>
+            <bpmn:messageEventDefinition id="messageEventDefinition_catch_enrollment_confirm" />
+        </bpmn:messageIntermediateCatchEvent>
+        <bpmn:exclusiveGateway id="confirmation_gw" name="Confirmed Before Deadline?">
+            <bpmn:incoming>sf23</bpmn:incoming>
+            <bpmn:outgoing>sf24</bpmn:outgoing>
+            <bpmn:outgoing>sf26</bpmn:outgoing>
+        </bpmn:exclusiveGateway>
+        <bpmn:userTask id="cancel_application" name="Cancel Application">
+            <bpmn:incoming>sf24</bpmn:incoming>
+            <bpmn:outgoing>sf25</bpmn:outgoing>
+        </bpmn:userTask>
+        <bpmn:messageIntermediateCatchEvent id="catch_enrollment_it">
+            <bpmn:incoming>sf26</bpmn:incoming>
+            <bpmn:outgoing>sf27</bpmn:outgoing>
+            <bpmn:messageEventDefinition id="messageEventDefinition_catch_enrollment_it" />
+        </bpmn:messageIntermediateCatchEvent>
+        <bpmn:parallelGateway id="onboarding_split">
+            <bpmn:incoming>sf27</bpmn:incoming>
+            <bpmn:outgoing>sf28</bpmn:outgoing>
+            <bpmn:outgoing>sf29</bpmn:outgoing>
+        </bpmn:parallelGateway>
+        <bpmn:serviceTask id="setup_accounts" name="Set Up IT Accounts">
+            <bpmn:incoming>sf28</bpmn:incoming>
+            <bpmn:outgoing>sf30</bpmn:outgoing>
+        </bpmn:serviceTask>
+        <bpmn:userTask id="send_orientation" name="Send Orientation Materials">
+            <bpmn:incoming>sf29</bpmn:incoming>
+            <bpmn:outgoing>sf31</bpmn:outgoing>
+        </bpmn:userTask>
+        <bpmn:parallelGateway id="onboarding_join">
+            <bpmn:incoming>sf30</bpmn:incoming>
+            <bpmn:incoming>sf31</bpmn:incoming>
+            <bpmn:outgoing>sf32</bpmn:outgoing>
+        </bpmn:parallelGateway>
+        <bpmn:exclusiveGateway id="international_gw" name="International Student?">
+            <bpmn:incoming>sf32</bpmn:incoming>
+            <bpmn:outgoing>sf33</bpmn:outgoing>
+            <bpmn:outgoing>sf34</bpmn:outgoing>
+        </bpmn:exclusiveGateway>
+        <bpmn:userTask id="assist_visa" name="Assist with Visa Processing">
+            <bpmn:incoming>sf33</bpmn:incoming>
+            <bpmn:outgoing>sf35</bpmn:outgoing>
+        </bpmn:userTask>
+        <bpmn:exclusiveGateway id="visa_merge_gw">
+            <bpmn:incoming>sf34</bpmn:incoming>
+            <bpmn:incoming>sf35</bpmn:incoming>
+            <bpmn:outgoing>sf36</bpmn:outgoing>
+        </bpmn:exclusiveGateway>
+        <bpmn:messageIntermediateThrowEvent id="throw_onboarding_complete">
+            <bpmn:incoming>sf36</bpmn:incoming>
+            <bpmn:messageEventDefinition id="messageEventDefinition_throw_onboarding_complete" />
+        </bpmn:messageIntermediateThrowEvent>
+        <bpmn:messageIntermediateCatchEvent id="catch_onboarding_complete">
+            <bpmn:outgoing>sf37</bpmn:outgoing>
+            <bpmn:messageEventDefinition id="messageEventDefinition_catch_onboarding_complete" />
+        </bpmn:messageIntermediateCatchEvent>
+        <bpmn:parallelGateway id="study_plan_split">
+            <bpmn:incoming>sf37</bpmn:incoming>
+            <bpmn:outgoing>sf38</bpmn:outgoing>
+            <bpmn:outgoing>sf39</bpmn:outgoing>
+        </bpmn:parallelGateway>
+        <bpmn:userTask id="obtain_student_id" name="Obtain Student ID Card">
+            <bpmn:incoming>sf38</bpmn:incoming>
+            <bpmn:outgoing>sf43</bpmn:outgoing>
+        </bpmn:userTask>
+        <bpmn:userTask id="meet_advisor" name="Meet with Academic Advisor">
+            <bpmn:incoming>sf39</bpmn:incoming>
+            <bpmn:outgoing>sf40</bpmn:outgoing>
+        </bpmn:userTask>
+        <bpmn:userTask id="select_courses" name="Select Courses">
+            <bpmn:incoming>sf40</bpmn:incoming>
+            <bpmn:outgoing>sf41</bpmn:outgoing>
+        </bpmn:userTask>
+        <bpmn:userTask id="resolve_conflicts" name="Resolve Schedule Conflicts">
+            <bpmn:incoming>sf41</bpmn:incoming>
+            <bpmn:outgoing>sf42</bpmn:outgoing>
+        </bpmn:userTask>
+        <bpmn:parallelGateway id="study_plan_join">
+            <bpmn:incoming>sf42</bpmn:incoming>
+            <bpmn:incoming>sf43</bpmn:incoming>
+            <bpmn:outgoing>sf44</bpmn:outgoing>
+        </bpmn:parallelGateway>
+        <bpmn:exclusiveGateway id="attend_merge_gw">
+            <bpmn:incoming>sf44</bpmn:incoming>
+            <bpmn:incoming>sf61</bpmn:incoming>
+            <bpmn:outgoing>sf45</bpmn:outgoing>
+        </bpmn:exclusiveGateway>
+        <bpmn:userTask id="attend_classes" name="Begin Attending Classes">
+            <bpmn:incoming>sf45</bpmn:incoming>
+            <bpmn:outgoing>sf46</bpmn:outgoing>
+        </bpmn:userTask>
+        <bpmn:exclusiveGateway id="add_drop_gw" name="Add/Drop Period?">
+            <bpmn:incoming>sf46</bpmn:incoming>
+            <bpmn:outgoing>sf47</bpmn:outgoing>
+            <bpmn:outgoing>sf49</bpmn:outgoing>
+        </bpmn:exclusiveGateway>
+        <bpmn:userTask id="add_drop_courses" name="Add/Drop Courses">
+            <bpmn:incoming>sf47</bpmn:incoming>
+            <bpmn:outgoing>sf48</bpmn:outgoing>
+        </bpmn:userTask>
+        <bpmn:exclusiveGateway id="end_of_semester_merge_gw">
+            <bpmn:incoming>sf48</bpmn:incoming>
+            <bpmn:incoming>sf49</bpmn:incoming>
+            <bpmn:outgoing>sf50</bpmn:outgoing>
+        </bpmn:exclusiveGateway>
+        <bpmn:messageIntermediateThrowEvent id="throw_end_of_semester">
+            <bpmn:incoming>sf50</bpmn:incoming>
+            <bpmn:messageEventDefinition id="messageEventDefinition_throw_end_of_semester" />
+        </bpmn:messageIntermediateThrowEvent>
+        <bpmn:messageIntermediateCatchEvent id="catch_end_of_semester">
+            <bpmn:outgoing>sf51</bpmn:outgoing>
+            <bpmn:messageEventDefinition id="messageEventDefinition_catch_end_of_semester" />
+        </bpmn:messageIntermediateCatchEvent>
+        <bpmn:userTask id="post_grades" name="Post Grades">
+            <bpmn:incoming>sf51</bpmn:incoming>
+            <bpmn:outgoing>sf52</bpmn:outgoing>
+        </bpmn:userTask>
+        <bpmn:messageIntermediateThrowEvent id="throw_grades_posted">
+            <bpmn:incoming>sf52</bpmn:incoming>
+            <bpmn:messageEventDefinition id="messageEventDefinition_throw_grades_posted" />
+        </bpmn:messageIntermediateThrowEvent>
+        <bpmn:messageIntermediateCatchEvent id="catch_grades_posted">
+            <bpmn:outgoing>sf53</bpmn:outgoing>
+            <bpmn:messageEventDefinition id="messageEventDefinition_catch_grades_posted" />
+        </bpmn:messageIntermediateCatchEvent>
+        <bpmn:userTask id="review_grades" name="Review Grades Online">
+            <bpmn:incoming>sf53</bpmn:incoming>
+            <bpmn:outgoing>sf54</bpmn:outgoing>
+        </bpmn:userTask>
+        <bpmn:exclusiveGateway id="appeal_gw" name="Appeal Needed?">
+            <bpmn:incoming>sf54</bpmn:incoming>
+            <bpmn:outgoing>sf55</bpmn:outgoing>
+            <bpmn:outgoing>sf59</bpmn:outgoing>
+        </bpmn:exclusiveGateway>
+        <bpmn:userTask id="submit_appeal" name="Submit Appeal Form">
+            <bpmn:incoming>sf55</bpmn:incoming>
+            <bpmn:outgoing>sf56</bpmn:outgoing>
+        </bpmn:userTask>
+        <bpmn:userTask id="appeal_meeting" name="Meet with Appeals Committee">
+            <bpmn:incoming>sf56</bpmn:incoming>
+            <bpmn:outgoing>sf57</bpmn:outgoing>
+        </bpmn:userTask>
+        <bpmn:userTask id="await_appeal_decision" name="Await Appeal Decision">
+            <bpmn:incoming>sf57</bpmn:incoming>
+            <bpmn:outgoing>sf58</bpmn:outgoing>
+        </bpmn:userTask>
+        <bpmn:exclusiveGateway id="appeal_merge_gw">
+            <bpmn:incoming>sf58</bpmn:incoming>
+            <bpmn:incoming>sf59</bpmn:incoming>
+            <bpmn:outgoing>sf60</bpmn:outgoing>
+        </bpmn:exclusiveGateway>
+        <bpmn:exclusiveGateway id="semester_decision_gw" name="Graduate, Withdraw, or Continue?">
+            <bpmn:incoming>sf60</bpmn:incoming>
+            <bpmn:outgoing>sf61</bpmn:outgoing>
+            <bpmn:outgoing>sf62</bpmn:outgoing>
+        </bpmn:exclusiveGateway>
+        <bpmn:exclusiveGateway id="grad_withdraw_split_gw">
+            <bpmn:incoming>sf62</bpmn:incoming>
+            <bpmn:outgoing>sf63</bpmn:outgoing>
+            <bpmn:outgoing>sf64</bpmn:outgoing>
+        </bpmn:exclusiveGateway>
+        <bpmn:userTask id="graduate" name="Graduate">
+            <bpmn:incoming>sf63</bpmn:incoming>
+            <bpmn:outgoing>sf65</bpmn:outgoing>
+        </bpmn:userTask>
+        <bpmn:userTask id="withdraw" name="Withdraw">
+            <bpmn:incoming>sf64</bpmn:incoming>
+            <bpmn:outgoing>sf66</bpmn:outgoing>
+        </bpmn:userTask>
+        <bpmn:exclusiveGateway id="grad_withdraw_merge_gw">
+            <bpmn:incoming>sf65</bpmn:incoming>
+            <bpmn:incoming>sf66</bpmn:incoming>
+            <bpmn:outgoing>sf67</bpmn:outgoing>
+        </bpmn:exclusiveGateway>
+        <bpmn:messageIntermediateThrowEvent id="throw_completion">
+            <bpmn:incoming>sf67</bpmn:incoming>
+            <bpmn:messageEventDefinition id="messageEventDefinition_throw_completion" />
+        </bpmn:messageIntermediateThrowEvent>
+        <bpmn:messageIntermediateCatchEvent id="catch_completion">
+            <bpmn:outgoing>sf68</bpmn:outgoing>
+            <bpmn:messageEventDefinition id="messageEventDefinition_catch_completion" />
+        </bpmn:messageIntermediateCatchEvent>
+        <bpmn:exclusiveGateway id="end_merge_gw">
+            <bpmn:incoming>sf20</bpmn:incoming>
+            <bpmn:incoming>sf25</bpmn:incoming>
+            <bpmn:incoming>sf68</bpmn:incoming>
+            <bpmn:outgoing>sf69</bpmn:outgoing>
+        </bpmn:exclusiveGateway>
+        <bpmn:endEvent id="end" name="Process Ended">
+            <bpmn:incoming>sf69</bpmn:incoming>
+        </bpmn:endEvent>
+        <bpmn:sequenceFlow id="sf1" sourceRef="start" targetRef="submit_application" />
+        <bpmn:sequenceFlow id="sf2" sourceRef="submit_application" targetRef="throw_application" />
+        <bpmn:sequenceFlow id="sf3" sourceRef="catch_application" targetRef="review_application" />
+        <bpmn:sequenceFlow id="sf4" sourceRef="review_application" targetRef="docs_complete_gw" />
+        <bpmn:sequenceFlow id="sf5" sourceRef="docs_complete_gw" targetRef="notify_missing_docs"
+            name="Missing" />
+        <bpmn:sequenceFlow id="sf6" sourceRef="notify_missing_docs"
+            targetRef="throw_missing_docs_notice" />
+        <bpmn:sequenceFlow id="sf7" sourceRef="catch_missing_docs_notice"
+            targetRef="provide_missing_docs" />
+        <bpmn:sequenceFlow id="sf8" sourceRef="provide_missing_docs"
+            targetRef="throw_missing_docs_return" />
+        <bpmn:sequenceFlow id="sf9" sourceRef="catch_missing_docs_return" targetRef="docs_merge_gw" />
+        <bpmn:sequenceFlow id="sf10" sourceRef="docs_complete_gw" targetRef="docs_merge_gw"
+            name="Complete" />
+        <bpmn:sequenceFlow id="sf11" sourceRef="docs_merge_gw" targetRef="evaluation_split" />
+        <bpmn:sequenceFlow id="sf12" sourceRef="evaluation_split" targetRef="evaluate_application" />
+        <bpmn:sequenceFlow id="sf13" sourceRef="evaluation_split" targetRef="process_fees" />
+        <bpmn:sequenceFlow id="sf14" sourceRef="evaluate_application" targetRef="evaluation_join" />
+        <bpmn:sequenceFlow id="sf15" sourceRef="process_fees" targetRef="evaluation_join" />
+        <bpmn:sequenceFlow id="sf16" sourceRef="evaluation_join" targetRef="accepted_gw" />
+        <bpmn:sequenceFlow id="sf17" sourceRef="accepted_gw" targetRef="send_acceptance"
+            name="Accepted" />
+        <bpmn:sequenceFlow id="sf18" sourceRef="accepted_gw" targetRef="send_rejection"
+            name="Rejected" />
+        <bpmn:sequenceFlow id="sf19" sourceRef="send_acceptance" targetRef="throw_acceptance" />
+        <bpmn:sequenceFlow id="sf20" sourceRef="send_rejection" targetRef="end_merge_gw" />
+        <bpmn:sequenceFlow id="sf21" sourceRef="catch_acceptance" targetRef="confirm_enrollment" />
+        <bpmn:sequenceFlow id="sf22" sourceRef="confirm_enrollment"
+            targetRef="throw_enrollment_confirm" />
+        <bpmn:sequenceFlow id="sf23" sourceRef="catch_enrollment_confirm"
+            targetRef="confirmation_gw" />
+        <bpmn:sequenceFlow id="sf24" sourceRef="confirmation_gw" targetRef="cancel_application"
+            name="No Confirmation" />
+        <bpmn:sequenceFlow id="sf25" sourceRef="cancel_application" targetRef="end_merge_gw" />
+        <bpmn:sequenceFlow id="sf26" sourceRef="confirmation_gw" targetRef="catch_enrollment_it"
+            name="Confirmed" />
+        <bpmn:sequenceFlow id="sf27" sourceRef="catch_enrollment_it" targetRef="onboarding_split" />
+        <bpmn:sequenceFlow id="sf28" sourceRef="onboarding_split" targetRef="setup_accounts" />
+        <bpmn:sequenceFlow id="sf29" sourceRef="onboarding_split" targetRef="send_orientation" />
+        <bpmn:sequenceFlow id="sf30" sourceRef="setup_accounts" targetRef="onboarding_join" />
+        <bpmn:sequenceFlow id="sf31" sourceRef="send_orientation" targetRef="onboarding_join" />
+        <bpmn:sequenceFlow id="sf32" sourceRef="onboarding_join" targetRef="international_gw" />
+        <bpmn:sequenceFlow id="sf33" sourceRef="international_gw" targetRef="assist_visa"
+            name="International" />
+        <bpmn:sequenceFlow id="sf34" sourceRef="international_gw" targetRef="visa_merge_gw"
+            name="Domestic" />
+        <bpmn:sequenceFlow id="sf35" sourceRef="assist_visa" targetRef="visa_merge_gw" />
+        <bpmn:sequenceFlow id="sf36" sourceRef="visa_merge_gw" targetRef="throw_onboarding_complete" />
+        <bpmn:sequenceFlow id="sf37" sourceRef="catch_onboarding_complete"
+            targetRef="study_plan_split" />
+        <bpmn:sequenceFlow id="sf38" sourceRef="study_plan_split" targetRef="obtain_student_id" />
+        <bpmn:sequenceFlow id="sf39" sourceRef="study_plan_split" targetRef="meet_advisor" />
+        <bpmn:sequenceFlow id="sf40" sourceRef="meet_advisor" targetRef="select_courses" />
+        <bpmn:sequenceFlow id="sf41" sourceRef="select_courses" targetRef="resolve_conflicts" />
+        <bpmn:sequenceFlow id="sf42" sourceRef="resolve_conflicts" targetRef="study_plan_join" />
+        <bpmn:sequenceFlow id="sf43" sourceRef="obtain_student_id" targetRef="study_plan_join" />
+        <bpmn:sequenceFlow id="sf44" sourceRef="study_plan_join" targetRef="attend_merge_gw" />
+        <bpmn:sequenceFlow id="sf45" sourceRef="attend_merge_gw" targetRef="attend_classes" />
+        <bpmn:sequenceFlow id="sf46" sourceRef="attend_classes" targetRef="add_drop_gw" />
+        <bpmn:sequenceFlow id="sf47" sourceRef="add_drop_gw" targetRef="add_drop_courses"
+            name="Add/Drop Period" />
+        <bpmn:sequenceFlow id="sf48" sourceRef="add_drop_courses"
+            targetRef="end_of_semester_merge_gw" />
+        <bpmn:sequenceFlow id="sf49" sourceRef="add_drop_gw" targetRef="end_of_semester_merge_gw"
+            name="End of Semester" />
+        <bpmn:sequenceFlow id="sf50" sourceRef="end_of_semester_merge_gw"
+            targetRef="throw_end_of_semester" />
+        <bpmn:sequenceFlow id="sf51" sourceRef="catch_end_of_semester" targetRef="post_grades" />
+        <bpmn:sequenceFlow id="sf52" sourceRef="post_grades" targetRef="throw_grades_posted" />
+        <bpmn:sequenceFlow id="sf53" sourceRef="catch_grades_posted" targetRef="review_grades" />
+        <bpmn:sequenceFlow id="sf54" sourceRef="review_grades" targetRef="appeal_gw" />
+        <bpmn:sequenceFlow id="sf55" sourceRef="appeal_gw" targetRef="submit_appeal" name="Yes" />
+        <bpmn:sequenceFlow id="sf56" sourceRef="submit_appeal" targetRef="appeal_meeting" />
+        <bpmn:sequenceFlow id="sf57" sourceRef="appeal_meeting" targetRef="await_appeal_decision" />
+        <bpmn:sequenceFlow id="sf58" sourceRef="await_appeal_decision" targetRef="appeal_merge_gw" />
+        <bpmn:sequenceFlow id="sf59" sourceRef="appeal_gw" targetRef="appeal_merge_gw" name="No" />
+        <bpmn:sequenceFlow id="sf60" sourceRef="appeal_merge_gw" targetRef="semester_decision_gw" />
+        <bpmn:sequenceFlow id="sf61" sourceRef="semester_decision_gw" targetRef="attend_merge_gw"
+            name="Continue Next Semester" />
+        <bpmn:sequenceFlow id="sf62" sourceRef="semester_decision_gw"
+            targetRef="grad_withdraw_split_gw" name="Graduate or Withdraw" />
+        <bpmn:sequenceFlow id="sf63" sourceRef="grad_withdraw_split_gw" targetRef="graduate"
+            name="Graduate" />
+        <bpmn:sequenceFlow id="sf64" sourceRef="grad_withdraw_split_gw" targetRef="withdraw"
+            name="Withdraw" />
+        <bpmn:sequenceFlow id="sf65" sourceRef="graduate" targetRef="grad_withdraw_merge_gw" />
+        <bpmn:sequenceFlow id="sf66" sourceRef="withdraw" targetRef="grad_withdraw_merge_gw" />
+        <bpmn:sequenceFlow id="sf67" sourceRef="grad_withdraw_merge_gw" targetRef="throw_completion" />
+        <bpmn:sequenceFlow id="sf68" sourceRef="catch_completion" targetRef="end_merge_gw" />
+        <bpmn:sequenceFlow id="sf69" sourceRef="end_merge_gw" targetRef="end" />
+        <bpmn:laneSet id="LaneSet_1">
+            <bpmn:lane id="lane_student" name="Student">
+                <bpmn:flowNodeRef>start</bpmn:flowNodeRef>
+                <bpmn:flowNodeRef>submit_application</bpmn:flowNodeRef>
+                <bpmn:flowNodeRef>throw_application</bpmn:flowNodeRef>
+                <bpmn:flowNodeRef>catch_missing_docs_notice</bpmn:flowNodeRef>
+                <bpmn:flowNodeRef>provide_missing_docs</bpmn:flowNodeRef>
+                <bpmn:flowNodeRef>throw_missing_docs_return</bpmn:flowNodeRef>
+                <bpmn:flowNodeRef>catch_acceptance</bpmn:flowNodeRef>
+                <bpmn:flowNodeRef>confirm_enrollment</bpmn:flowNodeRef>
+                <bpmn:flowNodeRef>throw_enrollment_confirm</bpmn:flowNodeRef>
+                <bpmn:flowNodeRef>catch_onboarding_complete</bpmn:flowNodeRef>
+                <bpmn:flowNodeRef>study_plan_split</bpmn:flowNodeRef>
+                <bpmn:flowNodeRef>obtain_student_id</bpmn:flowNodeRef>
+                <bpmn:flowNodeRef>meet_advisor</bpmn:flowNodeRef>
+                <bpmn:flowNodeRef>select_courses</bpmn:flowNodeRef>
+                <bpmn:flowNodeRef>resolve_conflicts</bpmn:flowNodeRef>
+                <bpmn:flowNodeRef>study_plan_join</bpmn:flowNodeRef>
+                <bpmn:flowNodeRef>attend_merge_gw</bpmn:flowNodeRef>
+                <bpmn:flowNodeRef>attend_classes</bpmn:flowNodeRef>
+                <bpmn:flowNodeRef>add_drop_gw</bpmn:flowNodeRef>
+                <bpmn:flowNodeRef>add_drop_courses</bpmn:flowNodeRef>
+                <bpmn:flowNodeRef>end_of_semester_merge_gw</bpmn:flowNodeRef>
+                <bpmn:flowNodeRef>throw_end_of_semester</bpmn:flowNodeRef>
+                <bpmn:flowNodeRef>catch_grades_posted</bpmn:flowNodeRef>
+                <bpmn:flowNodeRef>review_grades</bpmn:flowNodeRef>
+                <bpmn:flowNodeRef>appeal_gw</bpmn:flowNodeRef>
+                <bpmn:flowNodeRef>submit_appeal</bpmn:flowNodeRef>
+                <bpmn:flowNodeRef>appeal_meeting</bpmn:flowNodeRef>
+                <bpmn:flowNodeRef>await_appeal_decision</bpmn:flowNodeRef>
+                <bpmn:flowNodeRef>appeal_merge_gw</bpmn:flowNodeRef>
+                <bpmn:flowNodeRef>semester_decision_gw</bpmn:flowNodeRef>
+                <bpmn:flowNodeRef>grad_withdraw_split_gw</bpmn:flowNodeRef>
+                <bpmn:flowNodeRef>graduate</bpmn:flowNodeRef>
+                <bpmn:flowNodeRef>withdraw</bpmn:flowNodeRef>
+                <bpmn:flowNodeRef>grad_withdraw_merge_gw</bpmn:flowNodeRef>
+                <bpmn:flowNodeRef>throw_completion</bpmn:flowNodeRef>
+            </bpmn:lane>
+            <bpmn:lane id="lane_admissions" name="Admissions Office">
+                <bpmn:flowNodeRef>catch_application</bpmn:flowNodeRef>
+                <bpmn:flowNodeRef>review_application</bpmn:flowNodeRef>
+                <bpmn:flowNodeRef>docs_complete_gw</bpmn:flowNodeRef>
+                <bpmn:flowNodeRef>notify_missing_docs</bpmn:flowNodeRef>
+                <bpmn:flowNodeRef>throw_missing_docs_notice</bpmn:flowNodeRef>
+                <bpmn:flowNodeRef>catch_missing_docs_return</bpmn:flowNodeRef>
+                <bpmn:flowNodeRef>docs_merge_gw</bpmn:flowNodeRef>
+                <bpmn:flowNodeRef>evaluation_split</bpmn:flowNodeRef>
+                <bpmn:flowNodeRef>evaluate_application</bpmn:flowNodeRef>
+                <bpmn:flowNodeRef>evaluation_join</bpmn:flowNodeRef>
+                <bpmn:flowNodeRef>accepted_gw</bpmn:flowNodeRef>
+                <bpmn:flowNodeRef>send_acceptance</bpmn:flowNodeRef>
+                <bpmn:flowNodeRef>send_rejection</bpmn:flowNodeRef>
+                <bpmn:flowNodeRef>throw_acceptance</bpmn:flowNodeRef>
+                <bpmn:flowNodeRef>catch_enrollment_confirm</bpmn:flowNodeRef>
+                <bpmn:flowNodeRef>confirmation_gw</bpmn:flowNodeRef>
+                <bpmn:flowNodeRef>cancel_application</bpmn:flowNodeRef>
+                <bpmn:flowNodeRef>send_orientation</bpmn:flowNodeRef>
+                <bpmn:flowNodeRef>catch_completion</bpmn:flowNodeRef>
+                <bpmn:flowNodeRef>end_merge_gw</bpmn:flowNodeRef>
+                <bpmn:flowNodeRef>end</bpmn:flowNodeRef>
+            </bpmn:lane>
+            <bpmn:lane id="lane_finance" name="Finance Department">
+                <bpmn:flowNodeRef>process_fees</bpmn:flowNodeRef>
+            </bpmn:lane>
+            <bpmn:lane id="lane_it" name="IT Department">
+                <bpmn:flowNodeRef>catch_enrollment_it</bpmn:flowNodeRef>
+                <bpmn:flowNodeRef>onboarding_split</bpmn:flowNodeRef>
+                <bpmn:flowNodeRef>setup_accounts</bpmn:flowNodeRef>
+                <bpmn:flowNodeRef>onboarding_join</bpmn:flowNodeRef>
+            </bpmn:lane>
+            <bpmn:lane id="lane_international" name="International Student Office">
+                <bpmn:flowNodeRef>international_gw</bpmn:flowNodeRef>
+                <bpmn:flowNodeRef>assist_visa</bpmn:flowNodeRef>
+                <bpmn:flowNodeRef>visa_merge_gw</bpmn:flowNodeRef>
+                <bpmn:flowNodeRef>throw_onboarding_complete</bpmn:flowNodeRef>
+            </bpmn:lane>
+            <bpmn:lane id="lane_registrar" name="Registrar's Office">
+                <bpmn:flowNodeRef>catch_end_of_semester</bpmn:flowNodeRef>
+                <bpmn:flowNodeRef>post_grades</bpmn:flowNodeRef>
+                <bpmn:flowNodeRef>throw_grades_posted</bpmn:flowNodeRef>
+            </bpmn:lane>
+        </bpmn:laneSet>
+        <bpmn:dataObjectReference id="application" name="Application" />
+        <bpmn:dataObjectReference id="supporting_documents" name="Supporting Documents" />
+        <bpmn:dataObjectReference id="application_fee_record" name="Application Fee Record" />
+        <bpmn:dataObjectReference id="acceptance_letter" name="Acceptance Letter" />
+        <bpmn:dataObjectReference id="rejection_letter" name="Rejection Letter" />
+        <bpmn:dataObjectReference id="enrollment_confirmation" name="Enrollment Confirmation" />
+        <bpmn:dataObjectReference id="orientation_materials" name="Orientation Materials" />
+        <bpmn:dataObjectReference id="visa_documents" name="Visa Documents" />
+        <bpmn:dataObjectReference id="student_account_info" name="Student Account Information" />
+        <bpmn:dataObjectReference id="study_plan" name="Study Plan" />
+        <bpmn:dataObjectReference id="course_schedule" name="Course Schedule" />
+        <bpmn:dataObjectReference id="grades" name="Grades" />
+        <bpmn:dataObjectReference id="appeal_form" name="Appeal Form" />
+        <bpmn:dataObjectReference id="appeal_decision" name="Appeal Decision" />
+        <bpmn:dataStoreReference id="enrollment_db" name="Enrollment Database" />
+        <bpmn:dataStoreReference id="student_records_db" name="Student Records Database" />
+        <bpmn:dataStoreReference id="grade_repository" name="Grade Repository" />
+        <bpmn:dataInputAssociation id="da1">
+            <bpmn:sourceRef>application</bpmn:sourceRef>
+            <bpmn:targetRef>review_application</bpmn:targetRef>
+        </bpmn:dataInputAssociation>
+        <bpmn:dataInputAssociation id="da2">
+            <bpmn:sourceRef>supporting_documents</bpmn:sourceRef>
+            <bpmn:targetRef>review_application</bpmn:targetRef>
+        </bpmn:dataInputAssociation>
+        <bpmn:dataInputAssociation id="da3">
+            <bpmn:sourceRef>application</bpmn:sourceRef>
+            <bpmn:targetRef>evaluate_application</bpmn:targetRef>
+        </bpmn:dataInputAssociation>
+        <bpmn:dataInputAssociation id="da4">
+            <bpmn:sourceRef>application_fee_record</bpmn:sourceRef>
+            <bpmn:targetRef>process_fees</bpmn:targetRef>
+        </bpmn:dataInputAssociation>
+        <bpmn:dataOutputAssociation id="da5">
+            <bpmn:sourceRef>send_acceptance</bpmn:sourceRef>
+            <bpmn:targetRef>acceptance_letter</bpmn:targetRef>
+        </bpmn:dataOutputAssociation>
+        <bpmn:dataOutputAssociation id="da6">
+            <bpmn:sourceRef>send_rejection</bpmn:sourceRef>
+            <bpmn:targetRef>rejection_letter</bpmn:targetRef>
+        </bpmn:dataOutputAssociation>
+        <bpmn:dataOutputAssociation id="da7">
+            <bpmn:sourceRef>confirm_enrollment</bpmn:sourceRef>
+            <bpmn:targetRef>enrollment_confirmation</bpmn:targetRef>
+        </bpmn:dataOutputAssociation>
+        <bpmn:dataOutputAssociation id="da8">
+            <bpmn:sourceRef>setup_accounts</bpmn:sourceRef>
+            <bpmn:targetRef>student_account_info</bpmn:targetRef>
+        </bpmn:dataOutputAssociation>
+        <bpmn:dataOutputAssociation id="da9">
+            <bpmn:sourceRef>select_courses</bpmn:sourceRef>
+            <bpmn:targetRef>course_schedule</bpmn:targetRef>
+        </bpmn:dataOutputAssociation>
+        <bpmn:dataOutputAssociation id="da10">
+            <bpmn:sourceRef>resolve_conflicts</bpmn:sourceRef>
+            <bpmn:targetRef>study_plan</bpmn:targetRef>
+        </bpmn:dataOutputAssociation>
+        <bpmn:dataOutputAssociation id="da11">
+            <bpmn:sourceRef>post_grades</bpmn:sourceRef>
+            <bpmn:targetRef>grades</bpmn:targetRef>
+        </bpmn:dataOutputAssociation>
+        <bpmn:dataInputAssociation id="da12">
+            <bpmn:sourceRef>grades</bpmn:sourceRef>
+            <bpmn:targetRef>review_grades</bpmn:targetRef>
+        </bpmn:dataInputAssociation>
+        <bpmn:dataOutputAssociation id="da13">
+            <bpmn:sourceRef>submit_appeal</bpmn:sourceRef>
+            <bpmn:targetRef>appeal_form</bpmn:targetRef>
+        </bpmn:dataOutputAssociation>
+        <bpmn:dataOutputAssociation id="da14">
+            <bpmn:sourceRef>await_appeal_decision</bpmn:sourceRef>
+            <bpmn:targetRef>appeal_decision</bpmn:targetRef>
+        </bpmn:dataOutputAssociation>
+        <bpmn:dataAssociation id="da15">
+            <bpmn:sourceRef>application</bpmn:sourceRef>
+            <bpmn:targetRef>enrollment_db</bpmn:targetRef>
+        </bpmn:dataAssociation>
+        <bpmn:dataAssociation id="da16">
+            <bpmn:sourceRef>study_plan</bpmn:sourceRef>
+            <bpmn:targetRef>student_records_db</bpmn:targetRef>
+        </bpmn:dataAssociation>
+        <bpmn:dataAssociation id="da17">
+            <bpmn:sourceRef>grades</bpmn:sourceRef>
+            <bpmn:targetRef>grade_repository</bpmn:targetRef>
+        </bpmn:dataAssociation>
+    </bpmn:process>
+    <bpmn:collaboration id="Collaboration_1">
+        <bpmn:participant id="pool_student" name="Student" processRef="Process_1" />
+        <bpmn:participant id="pool_university" name="University" processRef="Process_1" />
+        <bpmn:messageFlow id="mf1" sourceRef="throw_application" targetRef="catch_application"
+            name="Application Package" />
+        <bpmn:messageFlow id="mf2" sourceRef="throw_missing_docs_notice"
+            targetRef="catch_missing_docs_notice" name="Missing Documents Notice" />
+        <bpmn:messageFlow id="mf3" sourceRef="throw_missing_docs_return"
+            targetRef="catch_missing_docs_return" name="Supporting Documents" />
+        <bpmn:messageFlow id="mf4" sourceRef="throw_acceptance" targetRef="catch_acceptance"
+            name="Acceptance Letter" />
+        <bpmn:messageFlow id="mf5" sourceRef="throw_enrollment_confirm"
+            targetRef="catch_enrollment_confirm" name="Enrollment Confirmation (to Admissions)" />
+        <bpmn:messageFlow id="mf6" sourceRef="throw_enrollment_confirm"
+            targetRef="catch_enrollment_it" name="Enrollment Confirmation (to IT)" />
+        <bpmn:messageFlow id="mf7" sourceRef="throw_end_of_semester"
+            targetRef="catch_end_of_semester" name="End of Semester Notification" />
+        <bpmn:messageFlow id="mf8" sourceRef="throw_grades_posted" targetRef="catch_grades_posted"
+            name="Grades Posted Notification" />
+        <bpmn:messageFlow id="mf9" sourceRef="throw_onboarding_complete"
+            targetRef="catch_onboarding_complete" name="Onboarding Complete" />
+        <bpmn:messageFlow id="mf10" sourceRef="throw_completion" targetRef="catch_completion"
+            name="Graduate/Withdraw Notification" />
+    </bpmn:collaboration>
+    <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+        <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="Collaboration_1" />
+    </bpmndi:BPMNDiagram>
+</bpmn:definitions>

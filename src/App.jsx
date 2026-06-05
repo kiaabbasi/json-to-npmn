@@ -1,7 +1,10 @@
 import { useRef, useState } from 'react'
 import BpmnEditor from './components/BpmnEditor'
 import TextBox from './components/TextBox'
-import useBpmnAutoLayout, { jsonToBpmnXml } from './hooks/useBpmnAutoLayout'
+import useBpmnAutoLayout, { jsonToBpmnXml } from './services/useBpmnAutoLayout'
+import { buildELKGraph } from './services/JsonToElkGraph';
+import elkLayout from './services/ElkGraphLayout';
+import elkToBpmn from './services/elkGraphToBpmn';
 function App() {
 
   const { layoutDiagram } = useBpmnAutoLayout();
@@ -15,11 +18,18 @@ function App() {
       </div>
 
       <button className='bg-amber-100 w-2xl' onClick={async () => {
+        const model = JSON.parse(jsonText);
+        const { nodes, sequenceFlows, pools = [], lanes = [] } = model;
 
-        let xml = jsonToBpmnXml(jsonText)
-        console.log(xml)
+        // 1. Build ELK graph
+        const elkGraph = buildELKGraph(nodes, sequenceFlows, pools, lanes);
+        console.log(elkGraph)
 
-        xml = await layoutDiagram(xml)
+        // 2. Run layout → absolute positions + real waypoints
+        const { positions, edgeWaypoints } = await elkLayout(elkGraph);
+        console.log(positions, edgeWaypoints)
+        // 3. Generate BPMN 2.0 XML
+        const xml = elkToBpmn(model, positions, edgeWaypoints);
 
         console.log(xml);
         setXmlText(xml)
