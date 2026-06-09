@@ -3,12 +3,12 @@
   "_comment": "BPMN JSON - all node types use standard BPMN names. eventDefinition field added to events. Intermediate message events are explicit nodes. sendTask replaced with messageIntermediateThrowEvent.",
 
   "pools": [
-    { "id": "pool_student",    "label": "Student",    "type": "expandedPool" },
+
     { "id": "pool_university", "label": "University", "type": "expandedPool" }
   ],
 
   "lanes": [
-    { "id": "lane_student",       "label": "Student",                    "pool": "pool_student" },
+    { "id": "lane_student",       "label": "Student",                    "pool": "pool_university" },
     { "id": "lane_admissions",    "label": "Admissions Office",          "pool": "pool_university" },
     { "id": "lane_finance",       "label": "Finance Department",         "pool": "pool_university" },
     { "id": "lane_it",            "label": "IT Department",              "pool": "pool_university" },
@@ -234,11 +234,7 @@
     { "id": "sf66", "source": "withdraw",                 "target": "grad_withdraw_merge_gw" },
     { "id": "sf67", "source": "grad_withdraw_merge_gw",   "target": "throw_completion" },
     { "id": "sf68", "source": "catch_completion",         "target": "end_merge_gw" },
-    { "id": "sf69", "source": "end_merge_gw",             "target": "end" }
-  ],
-
-  "messageFlows": [
-    { "id": "mf1", "source": "throw_application",           "target": "catch_application",
+    { "id": "sf69", "source": "end_merge_gw",             "target": "end" },    { "id": "mf1", "source": "throw_application",           "target": "catch_application",
       "label": "Application Package" },
     { "id": "mf2", "source": "throw_missing_docs_notice",   "target": "catch_missing_docs_notice",
       "label": "Missing Documents Notice" },
@@ -258,6 +254,10 @@
       "label": "Onboarding Complete" },
     { "id": "mf10","source": "throw_completion",            "target": "catch_completion",
       "label": "Graduate/Withdraw Notification" }
+  ],
+
+  "messageFlows": [
+
   ],
 
   "dataObjects": [
