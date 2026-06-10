@@ -24,7 +24,7 @@
  * @param  {object} json       The original JSON model
  * @returns {string}           Updated XML with proper messageFlow elements
  */
-export function restoreMessageFlows(xmlString, json) {
+export function restoreFlows(xmlString, json) {
 
   // ─── Build pool-lookup helpers ──────────────────────────────────────────
   const laneById   = new Map((json.lanes  ?? []).map(l => [l.id, l]));
@@ -32,7 +32,6 @@ export function restoreMessageFlows(xmlString, json) {
   const nodePoolId = id => laneById.get(nodeById.get(id)?.lane)?.pool ?? null;
 
   // ─── Collect message-flow definitions ──────────────────────────────────
-  // Merge explicit messageFlows + auto-detected cross-pool sequenceFlows.
   const seen      = new Set();
   const msgFlows  = [];
 
@@ -42,15 +41,28 @@ export function restoreMessageFlows(xmlString, json) {
 
   for (const sf of (json.sequenceFlows ?? [])) {
     if (seen.has(sf.id)) continue;
+
     const sp = nodePoolId(sf.source);
     const tp = nodePoolId(sf.target);
+
     if (sp !== null && tp !== null && sp !== tp) {
       seen.add(sf.id);
       msgFlows.push(sf);
     }
   }
 
-  if (msgFlows.length === 0) return xmlString;   // nothing to do
+  // ─── NEW: Collect data associations ────────────────────────────────────
+  const associations = [];
+  const assocSeen = new Set();
+
+  for (const da of (json.dataAssociations ?? [])) {
+    if (!assocSeen.has(da.id)) {
+      assocSeen.add(da.id);
+      associations.push(da);
+    }
+  }
+
+  if (msgFlows.length === 0 && associations.length === 0) return xmlString;
 
   // ─── XML attribute-escape helper ───────────────────────────────────────
   const esc = s => String(s ?? '')
@@ -59,28 +71,40 @@ export function restoreMessageFlows(xmlString, json) {
     .replace(/</g, '&lt;')
     .replace(/>/g, '&gt;');
 
-  // ─── Process each message flow ─────────────────────────────────────────
   let xml = xmlString;
 
+  // ─── Remove sequenceFlow leftovers (for message flows) ────────────────
   for (const mf of msgFlows) {
     const { id } = mf;
 
-    // 1. Remove <outgoing>id</outgoing> from the source node
     xml = xml.replace(new RegExp(`\\s*<outgoing>${id}</outgoing>`, 'g'), '');
-
-    // 2. Remove <incoming>id</incoming> from the target node
     xml = xml.replace(new RegExp(`\\s*<incoming>${id}</incoming>`, 'g'), '');
 
-    // 3a. Remove self-closing <sequenceFlow ... id="X" ... />
     xml = xml.replace(
       new RegExp(`[ \\t]*<sequenceFlow[^>]*\\bid="${id}"[^>]*/>[\\r\\n]*`, 'g'),
       ''
     );
 
-    // 3b. Remove block-form <sequenceFlow ... id="X" ...> … </sequenceFlow>
-    //     (used when a conditionExpression child is present)
     xml = xml.replace(
       new RegExp(`[ \\t]*<sequenceFlow[^>]*\\bid="${id}"[^>]*>[\\s\\S]*?</sequenceFlow>[\\r\\n]*`, 'g'),
+      ''
+    );
+  }
+
+  // ─── Remove dataAssociation leftovers (NEW) ───────────────────────────
+  for (const a of associations) {
+    const { id } = a;
+
+    xml = xml.replace(new RegExp(`\\s*<outgoing>${id}</outgoing>`, 'g'), '');
+    xml = xml.replace(new RegExp(`\\s*<incoming>${id}</incoming>`, 'g'), '');
+
+    xml = xml.replace(
+      new RegExp(`[ \\t]*<dataAssociation[^>]*\\bid="${id}"[^>]*/>[\\r\\n]*`, 'g'),
+      ''
+    );
+
+    xml = xml.replace(
+      new RegExp(`[ \\t]*<dataAssociation[^>]*\\bid="${id}"[^>]*>[\\s\\S]*?</dataAssociation>[\\r\\n]*`, 'g'),
       ''
     );
   }
@@ -93,10 +117,18 @@ export function restoreMessageFlows(xmlString, json) {
     })
     .join('\n');
 
+  // ─── Build <association> elements (NEW) ────────────────────────────────
+  const assocXml = associations
+    .map(a => {
+      const nameAttr = a.label ? ` name="${esc(a.label)}"` : '';
+      return `    <association id="${a.id}"${nameAttr} sourceRef="${a.source}" targetRef="${a.target}"/>`;
+    })
+    .join('\n');
+
   // ─── Insert before </collaboration> ───────────────────────────────────
   xml = xml.replace(
     /(\s*<\/collaboration>)/,
-    `\n\n    <!-- Message flows (restored after layout) -->\n${mfXml}\n  </collaboration>`
+    `\n\n    <!-- Message flows (restored after layout) -->\n${mfXml}\n\n    <!-- Data associations (restored after layout) -->\n${assocXml}\n  </collaboration>`
   );
 
   return xml;

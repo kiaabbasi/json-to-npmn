@@ -27,10 +27,12 @@
  */
 
 export default function jsonToBpmnXml(data) {
-  let { pools, lanes, nodes, sequenceFlows, messageFlows } = data;
-  
-  sequenceFlows = [...sequenceFlows,...messageFlows]
-  messageFlows=[]
+  let { pools, lanes, nodes, sequenceFlows, messageFlows, dataObjects, dataStores, dataAssociations } = data;
+
+  // layouter is not suprot messageFlow i convert them and affter layout i return them back  on preRenderProssesing
+  sequenceFlows = [...sequenceFlows, ...messageFlows, ...dataAssociations]
+  nodes=[...nodes, ...dataStores, ...dataObjects] 
+
   // ─── Tiny utilities ──────────────────────────────────────────────────────
 
   /** Group an array into a Map<key, item[]> using a key function. */
@@ -67,19 +69,19 @@ export default function jsonToBpmnXml(data) {
 
   // ─── Lookup & grouping structures ────────────────────────────────────────
 
-  const laneById    = new Map(lanes.map(l => [l.id, l]));
-  const nodeById    = new Map(nodes.map(n => [n.id, n]));
+  const laneById = new Map(lanes.map(l => [l.id, l]));
+  const nodeById = new Map(nodes.map(n => [n.id, n]));
 
   /** Returns the pool id that owns a given node id. */
-  const nodePoolId  = id => laneById.get(nodeById.get(id)?.lane)?.pool ?? null;
+  const nodePoolId = id => laneById.get(nodeById.get(id)?.lane)?.pool ?? null;
 
-  const lanesByPool = groupBy(lanes,         l  => l.pool);
-  const nodesByLane = groupBy(nodes,         n  => n.lane);
+  const lanesByPool = groupBy(lanes, l => l.pool);
+  const nodesByLane = groupBy(nodes, n => n.lane);
 
   // Each sequenceFlow belongs to the pool of its source node.
   // (All sequence flows in valid BPMN stay within a single pool;
   //  cross-pool communication uses messageFlows in the collaboration.)
-  const sfByPool    = groupBy(sequenceFlows, sf => nodePoolId(sf.source));
+  const sfByPool = groupBy(sequenceFlows, sf => nodePoolId(sf.source));
 
   // Per-node incoming / outgoing sequence-flow id lists
   const incoming = new Map();   // nodeId → sfId[]
@@ -92,15 +94,51 @@ export default function jsonToBpmnXml(data) {
   // ─── JSON type → BPMN element tag ────────────────────────────────────────
 
   const BPMN_TAG = {
-    startEvent:                    'startEvent',
-    endEvent:                      'endEvent',
-    userTask:                      'userTask',
-    serviceTask:                   'serviceTask',
-    sendTask :                     'sendTask',
-    exclusiveGateway:              'exclusiveGateway',
-    parallelGateway:               'parallelGateway',
+    // ─── Events ─────────────────────────────────────
+    startEvent: 'startEvent',
+    endEvent: 'endEvent',
+
+    intermediateThrowEvent: 'intermediateThrowEvent',
+    intermediateCatchEvent: 'intermediateCatchEvent',
+
     messageIntermediateThrowEvent: 'intermediateThrowEvent',
     messageIntermediateCatchEvent: 'intermediateCatchEvent',
+
+    timerIntermediateCatchEvent: 'intermediateCatchEvent',
+    errorIntermediateThrowEvent: 'intermediateThrowEvent',
+    signalIntermediateThrowEvent: 'intermediateThrowEvent',
+    signalIntermediateCatchEvent: 'intermediateCatchEvent',
+
+    boundaryEvent: 'boundaryEvent',
+
+    // ─── Tasks ───────────────────────────────────────
+    task: 'task',
+    userTask: 'userTask',
+    serviceTask: 'serviceTask',
+    scriptTask: 'scriptTask',
+    manualTask: 'manualTask',
+    sendTask: 'sendTask',
+    receiveTask: 'receiveTask',
+    businessRuleTask: 'businessRuleTask',
+
+    // ─── Subprocess / Activities ────────────────────
+    subProcess: 'subProcess',
+    callActivity: 'callActivity',
+
+    transaction: 'transaction',
+    adHocSubProcess: 'subProcess',
+
+    // ─── Gateways ────────────────────────────────────
+    exclusiveGateway: 'exclusiveGateway',
+    parallelGateway: 'parallelGateway',
+    inclusiveGateway: 'inclusiveGateway',
+    eventBasedGateway: 'eventBasedGateway',
+    complexGateway: 'complexGateway',
+
+    // ─── Data ────────────────────────────────────────
+    dataObjectReference: 'dataObjectReference',
+    dataStoreReference: 'dataStoreReference',
+
   };
 
   // ─── Element builders ────────────────────────────────────────────────────
@@ -108,7 +146,7 @@ export default function jsonToBpmnXml(data) {
   // The caller uses indentBlock() to place it inside the document.
 
   function buildNode(n) {
-    const tag = BPMN_TAG[n.type];
+    const tag = BPMN_TAG[n.type]
     if (!tag) return `<!-- UNSUPPORTED NODE TYPE: ${n.type} (id="${n.id}") -->`;
 
     const nameAttr = n.label ? ` name="${esc(n.label)}"` : '';
@@ -179,12 +217,6 @@ export default function jsonToBpmnXml(data) {
   }
   xml.push('');
 
-  // Cross-pool message flows live here, not inside any process
-  xml.push('    <!-- Message flows (cross-pool communication) -->');
-  for (const mf of messageFlows) {
-    const nameAttr = mf.label ? ` name="${esc(mf.label)}"` : '';
-    xml.push(`    <messageFlow id="${mf.id}"${nameAttr} sourceRef="${mf.source}" targetRef="${mf.target}"/>`);
-  }
 
   xml.push('');
   xml.push('  </collaboration>');
@@ -194,7 +226,7 @@ export default function jsonToBpmnXml(data) {
 
   for (const pool of pools) {
     const poolLanes = lanesByPool.get(pool.id) ?? [];
-    const poolSFs   = sfByPool.get(pool.id)   ?? [];
+    const poolSFs = sfByPool.get(pool.id) ?? [];
 
     xml.push(`  <!-- ═══════════════════ Pool: ${pool.label} ═══════════════════ -->`);
     xml.push(`  <process id="process_${pool.id}" name="${esc(pool.label)}" isExecutable="false">`);
@@ -255,3 +287,4 @@ export default function jsonToBpmnXml(data) {
 //
 //   const data = require('./yourDiagram.json');
 //   console.log(jsonToBpmnXml(data));
+

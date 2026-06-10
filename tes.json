@@ -13,6 +13,7 @@
     { "id": "lane_finance",       "label": "Finance Department",         "pool": "pool_university" },
     { "id": "lane_it",            "label": "IT Department",              "pool": "pool_university" },
     { "id": "lane_international", "label": "International Student Office","pool": "pool_university" },
+    { "id": "lane_data", "label": "Data","pool": "pool_university" },
     { "id": "lane_registrar",     "label": "Registrar's Office",         "pool": "pool_university" }
   ],
 
@@ -261,26 +262,26 @@
   ],
 
   "dataObjects": [
-    { "id": "application",              "label": "Application",               "type": "dataObjectReference" },
-    { "id": "supporting_documents",     "label": "Supporting Documents",      "type": "dataObjectReference" },
-    { "id": "application_fee_record",   "label": "Application Fee Record",    "type": "dataObjectReference" },
-    { "id": "acceptance_letter",        "label": "Acceptance Letter",         "type": "dataObjectReference" },
-    { "id": "rejection_letter",         "label": "Rejection Letter",          "type": "dataObjectReference" },
-    { "id": "enrollment_confirmation",  "label": "Enrollment Confirmation",   "type": "dataObjectReference" },
-    { "id": "orientation_materials",    "label": "Orientation Materials",     "type": "dataObjectReference" },
-    { "id": "visa_documents",           "label": "Visa Documents",            "type": "dataObjectReference" },
-    { "id": "student_account_info",     "label": "Student Account Information","type": "dataObjectReference" },
-    { "id": "study_plan",               "label": "Study Plan",                "type": "dataObjectReference" },
-    { "id": "course_schedule",          "label": "Course Schedule",           "type": "dataObjectReference" },
-    { "id": "grades",                   "label": "Grades",                    "type": "dataObjectReference" },
-    { "id": "appeal_form",              "label": "Appeal Form",               "type": "dataObjectReference" },
-    { "id": "appeal_decision",          "label": "Appeal Decision",           "type": "dataObjectReference" }
+    { "id": "application",              "label": "Application",               "lane": "lane_data", "type": "dataObjectReference" },
+    { "id": "supporting_documents",     "label": "Supporting Documents",      "lane": "lane_data", "type": "dataObjectReference" },
+    { "id": "application_fee_record",   "label": "Application Fee Record",    "lane": "lane_data", "type": "dataObjectReference" },
+    { "id": "acceptance_letter",        "label": "Acceptance Letter",         "lane": "lane_data", "type": "dataObjectReference" },
+    { "id": "rejection_letter",         "label": "Rejection Letter",          "lane": "lane_data", "type": "dataObjectReference" },
+    { "id": "enrollment_confirmation",  "label": "Enrollment Confirmation",   "lane": "lane_data", "type": "dataObjectReference" },
+    { "id": "orientation_materials",    "label": "Orientation Materials",     "lane": "lane_data", "type": "dataObjectReference" },
+    { "id": "visa_documents",           "label": "Visa Documents",            "lane": "lane_data", "type": "dataObjectReference" },
+    { "id": "student_account_info",   "label": "Student Account Information", "lane": "lane_data", "type": "dataObjectReference" },
+    { "id": "study_plan",               "label": "Study Plan",                "lane": "lane_data", "type": "dataObjectReference" },
+    { "id": "course_schedule",          "label": "Course Schedule",           "lane": "lane_data", "type": "dataObjectReference" },
+    { "id": "grades",                   "label": "Grades",                    "lane": "lane_data", "type": "dataObjectReference" },
+    { "id": "appeal_form",              "label": "Appeal Form",               "lane": "lane_data", "type": "dataObjectReference" },
+    { "id": "appeal_decision",          "label": "Appeal Decision",           "lane": "lane_data", "type": "dataObjectReference" }
   ],
 
   "dataStores": [
-    { "id": "enrollment_db",      "label": "Enrollment Database",    "type": "dataStoreReference" },
-    { "id": "student_records_db", "label": "Student Records Database","type": "dataStoreReference" },
-    { "id": "grade_repository",   "label": "Grade Repository",       "type": "dataStoreReference" }
+    { "id": "enrollment_db",      "label": "Enrollment Database",      "lane": "lane_data", "type": "dataStoreReference" },
+    { "id": "student_records_db", "label": "Student Records Database", "lane": "lane_data", "type": "dataStoreReference" },
+    { "id": "grade_repository",   "label": "Grade Repository",         "lane": "lane_data", "type": "dataStoreReference" }
   ],
 
   "dataAssociations": [

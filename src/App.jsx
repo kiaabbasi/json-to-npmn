@@ -4,7 +4,7 @@ import TextBox from './components/TextBox'
 import jsonToBpmnXml from './services/jsonToBpmnXml';
 
 import { layoutProcess } from 'yet-another-bpmn-auto-layout';
-import { restoreMessageFlows } from './services/preRenderProssesing';
+import { restoreFlows } from './services/preRenderProssesing';
 
 function App() {
 
@@ -19,13 +19,13 @@ function App() {
       </div>
 
       <button className='bg-amber-100 w-2xl' onClick={async () => {
-        const model = JSON.parse(jsonText);
+       const model = JSON.parse(jsonText);
         let basicXml = jsonToBpmnXml(model)
-        console.log(basicXml);
+        //console.log(basicXml);
 
         const diagramWithLayoutXML = await layoutProcess(basicXml);
-        console.log(diagramWithLayoutXML);
-        let finalXml = restoreMessageFlows(diagramWithLayoutXML,model  )
+        //console.log(diagramWithLayoutXML);
+        let finalXml = restoreFlows(diagramWithLayoutXML, model)
         setXmlText(finalXml)
 
       }}>Render</button>
