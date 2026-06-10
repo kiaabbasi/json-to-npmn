@@ -234,7 +234,11 @@
     { "id": "sf66", "source": "withdraw",                 "target": "grad_withdraw_merge_gw" },
     { "id": "sf67", "source": "grad_withdraw_merge_gw",   "target": "throw_completion" },
     { "id": "sf68", "source": "catch_completion",         "target": "end_merge_gw" },
-    { "id": "sf69", "source": "end_merge_gw",             "target": "end" },    { "id": "mf1", "source": "throw_application",           "target": "catch_application",
+    { "id": "sf69", "source": "end_merge_gw",             "target": "end" }
+  ],
+
+  "messageFlows": [
+{ "id": "mf1", "source": "throw_application",           "target": "catch_application",
       "label": "Application Package" },
     { "id": "mf2", "source": "throw_missing_docs_notice",   "target": "catch_missing_docs_notice",
       "label": "Missing Documents Notice" },
@@ -254,10 +258,6 @@
       "label": "Onboarding Complete" },
     { "id": "mf10","source": "throw_completion",            "target": "catch_completion",
       "label": "Graduate/Withdraw Notification" }
-  ],
-
-  "messageFlows": [
-
   ],
 
   "dataObjects": [

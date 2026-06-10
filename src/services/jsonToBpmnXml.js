@@ -27,8 +27,10 @@
  */
 
 export default function jsonToBpmnXml(data) {
-  const { pools, lanes, nodes, sequenceFlows, messageFlows } = data;
-
+  let { pools, lanes, nodes, sequenceFlows, messageFlows } = data;
+  
+  sequenceFlows = [...sequenceFlows,...messageFlows]
+  messageFlows=[]
   // ─── Tiny utilities ──────────────────────────────────────────────────────
 
   /** Group an array into a Map<key, item[]> using a key function. */

@@ -4,6 +4,7 @@ import TextBox from './components/TextBox'
 import jsonToBpmnXml from './services/jsonToBpmnXml';
 
 import { layoutProcess } from 'yet-another-bpmn-auto-layout';
+import { restoreMessageFlows } from './services/preRenderProssesing';
 
 function App() {
 
@@ -24,7 +25,8 @@ function App() {
 
         const diagramWithLayoutXML = await layoutProcess(basicXml);
         console.log(diagramWithLayoutXML);
-        setXmlText(diagramWithLayoutXML)
+        let finalXml = restoreMessageFlows(diagramWithLayoutXML,model  )
+        setXmlText(finalXml)
 
       }}>Render</button>
       <div className='border-2'>
