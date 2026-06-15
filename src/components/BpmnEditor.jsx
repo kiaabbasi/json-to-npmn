@@ -2,7 +2,7 @@ import { useEffect, useRef } from "react";
 
 import BpmnJS from "bpmn-js/dist/bpmn-modeler.development.js";
 
-export default function BpmnEditor({xml}) {
+export default function BpmnEditor({ xml, onSelectionChange  }) {
 
     const containerRef = useRef(null);
     const modelerRef = useRef(null);
@@ -36,6 +36,27 @@ export default function BpmnEditor({xml}) {
         };
 
     }, [xml]);
+    useEffect(() => {
+        if (!modelerRef.current) return;
+
+        const eventBus = modelerRef.current.get('eventBus');
+
+        const handler = (event) => {
+            const selected = event.newSelection.map(e => ({
+                id: e.id,
+                type: e.type,
+                businessObject: e.businessObject
+            }));
+
+            onSelectionChange?.(selected);
+        };
+
+        eventBus.on('selection.changed', handler);
+
+        return () => {
+            eventBus.off('selection.changed', handler);
+        };
+    }, [modelerRef.current,onSelectionChange]);
 
     return (
         <>
@@ -48,9 +69,9 @@ export default function BpmnEditor({xml}) {
                 }}
             />
             <button onClick={() => {
-                let definitions =  modelerRef.current.getDefinitions()
+                let definitions = modelerRef.current.getDefinitions()
                 console.log(definitions);
-                
+
             }}>TESt</button>
         </>
     );

@@ -288,3 +288,34 @@ export default function jsonToBpmnXml(data) {
 //   const data = require('./yourDiagram.json');
 //   console.log(jsonToBpmnXml(data));
 
+export function findById(structure, targetId) {
+  if (!structure) return null;
+
+  const stack = [structure];
+
+  while (stack.length) {
+    const current = stack.pop();
+
+    if (Array.isArray(current)) {
+      for (const item of current) {
+        stack.push(item);
+      }
+      continue;
+    }
+
+    if (typeof current === "object") {
+      if (current.id === targetId) {
+        return current;
+      }
+
+      for (const key of Object.keys(current)) {
+        const value = current[key];
+        if (value && (typeof value === "object" || Array.isArray(value))) {
+          stack.push(value);
+        }
+      }
+    }
+  }
+
+  return null;
+}
