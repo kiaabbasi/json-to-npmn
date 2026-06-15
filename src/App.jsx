@@ -21,19 +21,21 @@ function App() {
       </div>
 
       <button className='bg-amber-100 w-2xl' onClick={async () => {
-        setJsonModel(JSON.parse(jsonText));
-
-        const basicXml = jsonToBpmnXml(jsonModel)
-        //console.log(basicXml);
+        const parsed = JSON.parse(jsonText);
+        setJsonModel(parsed);
+        
+        
+        
+        const basicXml = jsonToBpmnXml(parsed)
 
         const diagramWithLayoutXML = await layoutProcess(basicXml);
         //console.log(diagramWithLayoutXML);
-        let finalXml = restoreFlows(diagramWithLayoutXML, jsonModel)
+        let finalXml = restoreFlows(diagramWithLayoutXML, parsed)
         setXmlText(finalXml)
 
       }}>Render</button>
       <span>{selectedNodes.map((v) => {
-        console.log(findById(jsonModel, v.id),v.id)
+        console.log(findById(jsonModel, v.id), v.id)
         return v.id + ",  "
       })}</span>
       <div className='border-2'>
