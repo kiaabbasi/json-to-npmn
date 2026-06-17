@@ -104,14 +104,28 @@ export default function BpmnEditor({ xml, onSelectionChange }) {
         };
     }, [modelerRef.current, onSelectionChange]);
 
-    
+
     return (
         <>
-            <button onClick={() => {
-                let definitions = modelerRef.current.getDefinitions()
-                console.log(definitions);
-                layoutSideEffect(modelerRef.current)
-            }}>TESt</button>
+            <button className="bg-sky-300 p-2 rounded-xl cursor-pointer" onClick={async () => {
+
+
+                try {
+                    const { xml } = await modelerRef.current.saveXML({ format: true });
+
+                    const blob = new Blob([xml], { type: 'application/xml' });
+                    const url = URL.createObjectURL(blob);
+
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = 'diagram.bpmn';
+                    a.click();
+
+                    URL.revokeObjectURL(url);
+                } catch (err) {
+                    console.error('Error exporting XML:', err);
+                }
+            }}>Save as xml</button>
             <div
                 ref={containerRef}
                 style={{
