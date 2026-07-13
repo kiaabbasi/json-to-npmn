@@ -1,12 +1,12 @@
 import { useEffect, useRef } from "react";
-
+import { useBpmn } from './BpmnContext';
 import BpmnJS from "bpmn-js/dist/bpmn-modeler.development.js";
 
 function layoutSideEffect(modeler) {
-    console.log("ssss");
+    //console.log("ssss");
 
     if (!modeler) return;
-    console.log("eeee")
+    //console.log("eeee")
     const modeling = modeler.get('modeling');
     const elementRegistry = modeler.get('elementRegistry');
 
@@ -45,9 +45,7 @@ function layoutSideEffect(modeler) {
 export default function BpmnEditor({ xml, onSelectionChange }) {
 
     const containerRef = useRef(null);
-    const modelerRef = useRef(null);
-
-
+    const modelerRef = useBpmn();
 
     useEffect(() => {
 
@@ -107,7 +105,7 @@ export default function BpmnEditor({ xml, onSelectionChange }) {
 
     return (
         <>
-            <button className="bg-sky-300 p-2 rounded-xl cursor-pointer" onClick={async () => {
+            {/* <button className="bg-sky-300 p-2 rounded-xl cursor-pointer" onClick={async () => {
 
 
                 try {
@@ -125,14 +123,11 @@ export default function BpmnEditor({ xml, onSelectionChange }) {
                 } catch (err) {
                     console.error('Error exporting XML:', err);
                 }
-            }}>Save as xml</button>
+            }}>Save as xml</button> */}
             <div
+                className='w-full h-full'
                 ref={containerRef}
-                style={{
-                    width: "100%",
-                    height: "100vh",
-                    border: "1px solid #ccc"
-                }}
+
             />
         </>
     );

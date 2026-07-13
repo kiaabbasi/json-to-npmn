@@ -13,6 +13,7 @@
     "@tailwindcss/vite": "^4.3.0",
     "bpmn-elk-layout": "^1.4.0",
     "bpmn-js": "^18.16.1",
+    "lucide-react": "^1.24.0",
     "react": "^19.2.6",
     "react-dom": "^19.2.6",
     "tailwindcss": "^4.3.0",
