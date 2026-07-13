@@ -64,10 +64,7 @@ function LeftSideBar({ messages, onSend }) {
       </button>
 
       <div
-        className={`
-          ${hideContent ? "hidden" : ""}
-          flex flex-col flex-1 min-h-0 pt-2 w-72
-        `}
+        className={`${hideContent ? "hidden" : ""}flex flex-col flex-1 min-h-0 pt-2 w-full `}
       >
         <ChatMessages messages={messages} />
         <div className="pt-2">
