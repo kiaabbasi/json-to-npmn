@@ -2,20 +2,20 @@ const ALLOWED_NODE_TYPES = [
     // ─── Events ─────────────────────────────────────
     "startEvent",
     "endEvent",
- 
+
     "intermediateThrowEvent",
     "intermediateCatchEvent",
- 
+
     "messageIntermediateThrowEvent",
     "messageIntermediateCatchEvent",
- 
+
     "timerIntermediateCatchEvent",
     "errorIntermediateThrowEvent",
     "signalIntermediateThrowEvent",
     "signalIntermediateCatchEvent",
- 
+
     "boundaryEvent",
- 
+
     // ─── Tasks ───────────────────────────────────────
     "task",
     "userTask",
@@ -25,14 +25,14 @@ const ALLOWED_NODE_TYPES = [
     "sendTask",
     "receiveTask",
     "businessRuleTask",
- 
+
     // ─── Subprocess / Activities ────────────────────
     "subProcess",
     "callActivity",
- 
+
     "transaction",
     "adHocSubProcess",
- 
+
     // ─── Gateways ────────────────────────────────────
     "exclusiveGateway",
     "parallelGateway",
@@ -40,15 +40,39 @@ const ALLOWED_NODE_TYPES = [
     "eventBasedGateway",
     "complexGateway",
 ];
- 
+
 const ALLOWED_DATA_OBJECT_TYPES = [
     "dataObjectReference",
     "dataStoreReference"
 ];
- 
-export default function validateBpmnJson(model) {
-    const errors = [];
 
+const REQUIRED_KEYS = [
+    "pools",
+    "lanes",
+    "nodes",
+    "sequenceFlows",
+    "messageFlows",
+    "dataObjects",
+    "dataStores",
+    "dataAssociations",
+];
+
+function validateBpmnJson(model) {
+    const errors = [];
+    const modelKeys = Object.keys(model ?? {});
+
+    REQUIRED_KEYS.forEach(key => {
+        if (!(key in model)) {
+            errors.push({ rule: "MISSING_KEY", message: `Missing required key "${key}"`, path: key });
+        } else if (!Array.isArray(model[key])) {
+            errors.push({ rule: "INVALID_KEY_TYPE", message: `"${key}" must be an array`, path: key });
+        }
+    });
+
+    const extraKeys = modelKeys.filter(k => !REQUIRED_KEYS.includes(k));
+    extraKeys.forEach(key => {
+        errors.push({ rule: "UNEXPECTED_KEY", message: `Unexpected key "${key}" is not allowed`, path: key });
+    });
     /* 1. Pool validation — exactly one pool, period. */
     if (!Array.isArray(model.pools) || model.pools.length !== 1) {
         errors.push({ rule: "POOLS_REQUIRED", message: "Exactly one pool is required", path: "pools" });
@@ -157,7 +181,7 @@ export default function validateBpmnJson(model) {
         }
     });
 
-    
+
     return { valid: errors.length === 0, errors };
 }
 
