@@ -9,7 +9,7 @@ import jsonToBpmnXml from "./services/jsonToBpmnXml";
 import { restoreFlows } from "./services/preRenderProssesing";
 import { layoutProcess } from "yet-another-bpmn-auto-layout";
 import LeftSideBar from "./components/layout/LeftSideBar";
-
+import validateBpmnJson from "./services/bpmnValidator.js"
 function App() {
     const [xmlText, setXmlText] = useState(`<?xml version="1.0" encoding="UTF-8"?>
 <bpmn:definitions
@@ -47,8 +47,20 @@ function App() {
             const parsed = JSON.parse(text);
             setJsonModel(parsed);
 
+            const result = validateBpmnJson(parsed);
+
+            console.log(result);
+            if (!result.valid) {
+                console.log("Validation errors:");
+                result.errors.forEach(err => {
+                    console.log(err);
+                });
+                return
+            }
             const basicXml = jsonToBpmnXml(parsed);
+            console.log(basicXml);
             const diagramWithLayoutXML = await layoutProcess(basicXml);
+            console.log(diagramWithLayoutXML);
             const finalXml = restoreFlows(diagramWithLayoutXML, parsed);
 
             setXmlText(finalXml);
@@ -74,7 +86,7 @@ function App() {
         <BpmnProvider>
             <div className="flex flex-col md:flex-row w-full h-screen">
                 {/* Sidebar */}
-                 <LeftSideBar messages={messages} onSend={handleGenerate} />
+                <LeftSideBar messages={messages} onSend={handleGenerate} />
 
 
                 {/* Editor */}

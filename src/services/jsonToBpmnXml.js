@@ -35,8 +35,6 @@ export default function jsonToBpmnXml(data) {
     element.pool = pools[0].id
   });
 
-  console.log(pools,lanes);
-  
   
   // layouter is not suprot messageFlow i convert them and affter layout i return them back  on preRenderProssesing
   sequenceFlows = [...sequenceFlows, ...messageFlows, ...dataAssociations]
